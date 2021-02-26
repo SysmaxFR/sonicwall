@@ -22,7 +22,7 @@ try
 catch
 {
     #Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__
-    $rCloudBackup = $_.ErrorDetails.Message
+    $rCloudBackup = ($_.ErrorDetails.Message | ConvertTo-Json)
 }
 
 Start-Sleep -Seconds 15
@@ -34,7 +34,7 @@ try
 catch
 {
     #Write-Host "StatusCode:" $_.Exception.Response.StatusCode.value__
-    $rFirewallREstart = $_.ErrorDetails.Message
+    $rFirewallREstart = ($_.ErrorDetails.Message | ConvertTo-Json)
 }
 
 
