@@ -4,7 +4,7 @@ if(!($PSVersionTable.PSVersion.Major -eq "7")){ Write-Host "Script use only PwSH
 $IP = "192.168.10.254"
 $Port = "4443"
 $Username = "admin"
-$Password = "Eden@FW01!"
+$Password = "monsupermdp"
 
 
 $Uri = "https://"+$Ip+":"+$Port+"/api/sonicos"
@@ -17,7 +17,7 @@ Remove-Variable -Name Username, Password, Credential
 
 try
 {
-    $CloudBackup = Invoke-RestMethod -Uri "$Uri/cloud-backup/name/RMM_Reboot" -Method 'POST' -ContentType 'application/json' -SessionVariable 'Cookie' -SkipCertificateCheck 
+    $CloudBackup = Invoke-RestMethod -Uri "$Uri/cloud-backup/name/RMM_Reboot" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck 
 }
 catch
 {
@@ -29,7 +29,7 @@ Start-Sleep -Seconds 15
 
 try
 {
-    $FirewallRestart = Invoke-RestMethod -Uri "$Uri/restart/now" -Method 'POST' -ContentType 'application/json' -SessionVariable 'Cookie' -SkipCertificateCheck 
+    $FirewallRestart = Invoke-RestMethod -Uri "$Uri/restart/now" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck 
 }
 catch
 {
@@ -39,7 +39,7 @@ catch
 
 
 # Fermeture de la session RestAPI, suppression du cookie d'authentification.
-$Session = Invoke-RestMethod -Uri "$Uri/auth" -Method DELETE -ContentType 'application/json' -WebSession $Cookie -SkipCertificateCheck
+$Session = Invoke-RestMethod -Uri "$Uri/auth" -Method DELETE -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck
 
 Do {
     Write-Host "En attente de redemarrage"
