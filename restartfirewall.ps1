@@ -15,7 +15,7 @@ if(!($PSVersionTable.PSVersion.Major -eq "7")){ Write-Host "Script use only PwSH
 $IP = '192.168.10.254'
 $Port = '4443'
 $Username = 'admin'
-$Password = 'Eden@FW01!'
+$Password = 'monsupermdp'
 
 
 $Uri = "https://"+$Ip+":"+$Port+"/api/sonicos"
@@ -38,6 +38,10 @@ if ($FirewallRestart.status.success -eq $true)
         Write-Host "Waiting for restart"
         Start-Sleep -Seconds 1
     } while (Test-Connection $IP -count 1 -Quiet)
+}
+else
+{
+    Write-Host $FirewallRestart.status.info
 }
 
 # Fermeture de la session RestAPI, suppression du cookie d'authentification.
