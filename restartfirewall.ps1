@@ -1,12 +1,12 @@
 #
 #   Manage > Appliance > Base Settings > SonicOS API
 #   Enable SonicOS API
-#       Disable RFC-7616 HTTP Digest Access authentication
-#       Disable CHAP authentication
-#       Enable RFC-2617 HTTP Basic Access authentication
-#       Disable Public Key authentication
-#       Disable Two-Factor and Bearer Token Authentication
-#       Disable session security using RFC-7616 Digest authentication
+#       X Disable RFC-7616 HTTP Digest Access authentication
+#       X Disable CHAP authentication
+#       > Enable RFC-2617 HTTP Basic Access authentication
+#       X Disable Public Key authentication
+#       X Disable Two-Factor and Bearer Token Authentication
+#       X Disable session security using RFC-7616 Digest authentication
 #
 
 # Fonctionne seulement avec powershell v7+.
