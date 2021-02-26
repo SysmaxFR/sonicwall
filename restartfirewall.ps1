@@ -30,22 +30,14 @@ if ($Session.status.success -eq $false)
 }
 Remove-Variable -Name Username, Password, Credential
 
-$ConfigMode = try { Invoke-RestMethod -Uri "$Uri/config-mode" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
-if ($ConfigMode.status.success -eq $true)
+$FirewallRestart = try { Invoke-RestMethod -Uri "$Uri/restart/now" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
+if ($FirewallRestart.status.success -eq $true)
 {
-    $CloudBackup = try { Invoke-RestMethod -Uri "$Uri/cloud-backup" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }; Start-Sleep -Seconds 15
-    if ($CloudBackup.status.success -eq $true)
-    {
-        $FirewallRestart = try { Invoke-RestMethod -Uri "$Uri/restart/now" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
-        if ($FirewallRestart.status.success -eq $true)
-        {
-            Write-Host "Reboot in few minutes"
-            do {
-                Write-Host "Waiting for restart"
-                Start-Sleep -Seconds 1
-            } while (Test-Connection $IP -count 1)
-        }
-    }
+    Write-Host "Reboot in few minutes"
+    do {
+        Write-Host "Waiting for restart"
+        Start-Sleep -Seconds 1
+    } while (Test-Connection $IP -count 1 -Quiet)
 }
 
 # Fermeture de la session RestAPI, suppression du cookie d'authentification.
