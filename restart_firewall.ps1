@@ -12,8 +12,8 @@
 # Fonctionne seulement avec powershell v7+.
 if(!($PSVersionTable.PSVersion.Major -eq "7")){ Write-Host "Script use only PwSH v7"; Exit 1 }
 
-$IP = '192.168.10.254'
-$Port = '4443'
+$IP = 'X.X.X.X'
+$Port = '0000'
 $Username = 'admin'
 $Password = 'monsupermdp'
 
