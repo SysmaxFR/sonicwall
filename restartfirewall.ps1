@@ -15,7 +15,7 @@ if(!($PSVersionTable.PSVersion.Major -eq "7")){ Write-Host "Script use only PwSH
 $IP = '192.168.10.254'
 $Port = '4443'
 $Username = 'admin'
-$Password = 'Eden@FW01!'
+$Password = 'monsupermdp'
 
 
 $Uri = "https://"+$Ip+":"+$Port+"/api/sonicos"
