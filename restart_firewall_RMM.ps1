@@ -65,3 +65,6 @@ else
 
 # Fermeture de la session RestAPI, suppression du cookie d'authentification.
 $Session = Invoke-RestMethod -Uri "$Uri/auth" -Method DELETE -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck
+
+
+}
