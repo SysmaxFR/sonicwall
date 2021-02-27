@@ -154,7 +154,7 @@ $Send.Add_Click(
     $FirewallRestart = try { Invoke-RestMethod -Uri "$Uri/restart/at/$Schedule" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
     if( $FirewallRestart.status.success -eq $false )
     {
-        Write-Host $FirewallRestart.status.info
+        Write-Host "Restart error : " $FirewallRestart.status.info
     }
 
     # Fermeture de la session RestAPI, suppression du cookie d'authentification.
