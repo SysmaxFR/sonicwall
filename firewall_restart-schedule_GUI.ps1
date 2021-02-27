@@ -13,6 +13,15 @@
 #       X Disable session security using RFC-7616 Digest authentication
 #
 
+if( !(Test-Path ".\PowerShell-7-win-x64") )
+{
+    Invoke-WebRequest https://github.com/PowerShell/PowerShell/releases/download/v7.1.1/PowerShell-7.1.1-win-x64.zip -OutFile PowerShell-7-win-x64.zip
+    Expand-Archive ".\PowerShell-7-win-x64.zip"
+    Remove-Item ".\PowerShell-7-win-x64.zip" -Force
+}
+.\PowerShell-7-win-x64\pwsh.exe -Command {
+
+
 Add-Type -AssemblyName System.Windows.Forms
 [System.Windows.Forms.Application]::EnableVisualStyles()
 
@@ -22,7 +31,7 @@ $GUI.text                        = "Firewall_Restart"
 $GUI.TopMost                     = $false
 
 $Send                            = New-Object system.Windows.Forms.Button
-$Send.text                       = "Schredule"
+$Send.text                       = "Schedule"
 $Send.width                      = 227
 $Send.height                     = 30
 $Send.location                   = New-Object System.Drawing.Point(22,185)
@@ -111,58 +120,50 @@ $Logs.Add_Click(
     [Console.Window]::ShowWindow($ConsolePtr, 4)
 })
 
+
 # Send api requests
 $Send.Add_Click(
 {
-    if( !(Test-Path ".\PowerShell-7-win-x64") )
-    {
-        Invoke-WebRequest https://github.com/PowerShell/PowerShell/releases/download/v7.1.1/PowerShell-7.1.1-win-x64.zip -OutFile PowerShell-7-win-x64.zip
-        Expand-Archive ".\PowerShell-7-win-x64.zip"
-    }
-    $Progress.Value = 30
-    .\PowerShell-7-win-x64\pwsh.exe -Command {
+    $Progress.Value = 10
 
-        IP = $FirewallIp.Text
-        $Port = $FirewallPort.Text
-        $Username = $FirewallUsername.Text
-        $Password = $FireallPassword.Text
+    $IP = $FirewallIp.Text
+    $Port = $FirewallPort.Text
+    $Username = $FirewallUsername.Text
+    $Password = $FireallPassword.Text
 
-        $Uri = "https://"+$Ip+":"+$Port+"/api/sonicos"
-        $Credential = New-Object System.Management.Automation.PSCredential -ArgumentList ($Username, (ConvertTo-SecureString $Password -AsPlainText -Force))
+    $Uri = "https://"+$Ip+":"+$Port+"/api/sonicos"
+    $Credential = New-Object System.Management.Automation.PSCredential -ArgumentList ($Username, (ConvertTo-SecureString $Password -AsPlainText -Force))
+
+    Write-Host $Credential.UserName
+    Write-Host $Uri
     
-        # Reformattage de la DataTime (concatenation et formatage API)
-        $DateTime = [DateTime]::parseexact("$($RebootDate.Text) $($RebootTime.Text)", 'dd/MM/yyyy HH:mm', $null)
-        $Schedule = ([DateTime]$DateTime).ToString('yyyyMMddHHmmss')
+    # Reformattage de la DataTime (concatenation et formatage API)
+    $DateTime = [DateTime]::parseexact("$($RebootDate.Text) $($RebootTime.Text)", 'dd/MM/yyyy HH:mm', $null)
+    $Schedule = ([DateTime]$DateTime).ToString('yyyyMMddHHmmss')
 
-        # Ouverture de la session RestAPI, recuperation d'un cookie d'authentification.
-        $Session = Invoke-RestMethod -Uri "$Uri/auth" -Method POST -ContentType 'application/json' -SessionVariable 'Cookie' -SkipCertificateCheck -Authentication Basic -Credential $Credential
-        if( $Session.status.success -eq $false )
-        {
-            Write-Host "Credentials error"
-            Exit 1
-        }
-        Remove-Variable -Name Username, Password, Credential
+    Write-Host $DateTime
 
-        $FirewallRestart = try { Invoke-RestMethod -Uri "$Uri/restart/at/$Schedule" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
-        if( $FirewallRestart.status.success -eq $false )
-        {
-            Write-Host $FirewallRestart.status.info
-            Exit 1
-        }
-        else
-        {
-            Write-Host "Reboot in few minutes"
-            do {
-               Write-Host "Waiting for restart"
-               Start-Sleep -Seconds 1
-            } while (Test-Connection $IP -count 1 -Quiet)
-            Write-Host "Reboot -> Success"    
-        }
-
-        # Fermeture de la session RestAPI, suppression du cookie d'authentification.
-        $Session = Invoke-RestMethod -Uri "$Uri/auth" -Method DELETE -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck
-        $Progress.Value = 100    
+    # Ouverture de la session RestAPI, recuperation d'un cookie d'authentification.
+    $Session = Invoke-RestMethod -Uri "$Uri/auth" -Method POST -ContentType 'application/json' -SessionVariable 'Cookie' -SkipCertificateCheck -Authentication Basic -Credential $Credential
+    if( $Session.status.success -eq $false )
+    {
+        Write-Host "Credentials error"
     }
+    Remove-Variable -Name Username, Password, Credential
+
+    $FirewallRestart = try { Invoke-RestMethod -Uri "$Uri/restart/at/$Schedule" -Method 'POST' -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck } catch { $_.ErrorDetails.Message | ConvertFrom-Json }
+    if( $FirewallRestart.status.success -eq $false )
+    {
+        Write-Host $FirewallRestart.status.info
+    }
+
+    # Fermeture de la session RestAPI, suppression du cookie d'authentification.
+    $Session = Invoke-RestMethod -Uri "$Uri/auth" -Method DELETE -ContentType 'application/json' -WebSession $Cookies -SkipCertificateCheck
+
+    $Progress.Value = 100
 })
 
 [void]$GUI.ShowDialog()
+
+
+}
